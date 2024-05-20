@@ -7,6 +7,12 @@ from waitress import serve
 
 app = Flask(__name__)
 
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok"}), 200
+
+
 @app.route('/analyze-audio', methods=['POST'])
 def transcription():
     if 'audio_file' not in request.files:
@@ -26,8 +32,11 @@ def transcription():
             topic_model = TopicModel(data['text'].values)
             posts = topic_model.get_posts()
             generate_html(posts)
-
-    return jsonify({"error": "Invalid file"}), 400
+            return jsonify({"posts": posts}), 200
+        else:
+            return jsonify({"error": "Transcription failed"}), 400
+    else:
+        return jsonify({"error": "Invalid file"}), 400
 
 
 if __name__ == '__main__':
