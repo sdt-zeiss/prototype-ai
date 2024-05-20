@@ -3,6 +3,9 @@
 # Setup virtual environment
 `python -m venv env`
 
+# Activate virtual env
+`source env/bin/activate`
+
 # Install dependencies
 `pip install -r requirements.txt`
 
