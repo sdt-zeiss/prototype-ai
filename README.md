@@ -1,15 +1,19 @@
 # prototype-ai
 
 # Setup virtual environment
+
 `python -m venv env`
 
 # Activate virtual env
+
 `source env/bin/activate`
 
 # Install dependencies
+
 `pip install -r requirements.txt`
 
 # Setup Environment variables
+
 ```
 OPEN_AI_PROJECT_ID = ""
 OPEN_AI_ORGANIZATION_ID = ""
@@ -23,6 +27,7 @@ POSTGRES_PORT = ""
 ```
 
 # Start the flask server
+
 `python main.py`
 
 # Note
@@ -30,3 +35,10 @@ POSTGRES_PORT = ""
 - The script will automatically generate some temporary files and keep on overwriting them. Currently `index.html`, `output.csv` and `temp.wav` will be the temp files.
 
 - For current version, the ai generated posts that will be saved to database consist of the some hardcoded fields for now like the `author_id`, `image_id`, `status`, and `type`.
+
+# Test
+
+```bash
+curl -X POST http://localhost:8080/analyze-audio \\
+    -F "audio_file=./audio.wav"
+```
