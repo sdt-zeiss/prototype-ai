@@ -114,14 +114,13 @@ def get_transcription(result_url, api_key=GLADIA_API_KEY):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def transcribe(audio_file, audio_extension):
+def transcribe(audio_file, audio_extension, audio_url=""):
     """
     Wrapper function that uploads an audio file to the Gladia API, preprocesses transcription and dumps to postgres.
     """
-    # Upload audio
-    audio_url = upload_audio(audio_file, audio_extension)
-
-    print(audio_file)
+    if not audio_url:
+        # Upload audio
+        audio_url = upload_audio(audio_file, audio_extension)
 
     # Request transcription
     result_url = request_transcription_from_audio_url(audio_url)
@@ -151,10 +150,10 @@ def transcribe(audio_file, audio_extension):
 
     current_timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
-    filename = "output.csv"
+    # filename = "output.csv"
 
     # TODO : Use a better naming scheme to keep track of multiple transcriptions
-    # filename = f"data/transcription_{current_timestamp}.csv"
+    filename = f"transcription_{current_timestamp}.csv"
 
     # Export to Postgres and dump as csv
     df.to_csv(filename)

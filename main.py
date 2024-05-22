@@ -31,7 +31,27 @@ def transcription():
         if data is not None:
             topic_model = TopicModel(data['text'].values)
             posts = topic_model.get_posts()
-            generate_html(posts)
+            return jsonify({"posts": posts}), 200
+        else:
+            return jsonify({"error": "Transcription failed"}), 400
+    else:
+        return jsonify({"error": "Invalid file"}), 400
+
+
+@app.route('/analyze-url', methods=['POST'])
+def transcribe_url():
+    print(request, request.json)
+    if 'audio_url' not in request.json:
+        return jsonify({"error": "No audio url part"}), 400
+
+    audio_url = request.json['audio_url']
+
+    if audio_url:
+        data = transcribe("", "", audio_url)
+        # If transcription is successful, start topic modeling
+        if data is not None:
+            topic_model = TopicModel(data['text'].values)
+            posts = topic_model.get_posts()
             return jsonify({"posts": posts}), 200
         else:
             return jsonify({"error": "Transcription failed"}), 400
