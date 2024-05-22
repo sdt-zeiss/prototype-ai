@@ -85,9 +85,9 @@ def generate_html(posts):
 
 def upload_to_minio(image_url,
                     bucket=S3_BUCKET,
-                    object_name=str(uuid.uuid4())
                     ):
     try:
+        object_name = str(uuid.uuid4())
         # Get image from Dalle generated URL
         response = requests.get(image_url, stream=True)
         response.raise_for_status()
@@ -135,3 +135,5 @@ def list_objects_in_bucket(bucket_name=S3_BUCKET):
             print(f"Object: {obj.object_name} - Size: {obj.size} bytes")
     except S3Error as e:
         print(f"Error occurred: {e}")
+
+list_objects_in_bucket()
