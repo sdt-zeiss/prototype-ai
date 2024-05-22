@@ -16,6 +16,7 @@ import pandas as pd
 import uuid
 from datetime import datetime
 import os
+from utils import upload_to_minio
 
 OPEN_AI_API_KEY = os.getenv('OPEN_AI_API_KEY')
 logger = logging.getLogger(__name__)
@@ -174,7 +175,7 @@ class TopicModel():
             new_topic = prompt_chatgpt(messages=messages).choices[0].message.content
 
             post_conversion_prompt = f"""I have the following summary of a document after analyzing and performing topic modeling into it. The modeling was done on a podcast transcript and the theme of the conversation is represented in the following - {new_topic}. Generate a social media post for this given topic. This post should consist of a thought provoking scenario, demanding user's engagement and contribution towards the theme. Make sure the topic represents an open ended question and allows the users to answer at a meta level. Use a small title of at most 5 words that perfectly describes the theme of the post. Consider [SEP] to be a special character and make sure it is in the following format:
-            Title : <post_title> [SEP] Post : <post_caption>
+            Title:<post_title> [SEP] Post:<post_caption>
             """
             summaries.append(new_topic)
             messages = [
@@ -192,7 +193,7 @@ class TopicModel():
         print(summaries)
         logger.info('Generating post images...')
         posts = {}
-        for summary in summaries[:10]:
+        for summary in summaries:
             split_summary = summary.split('[SEP]')
             post_theme = split_summary[0]
             post_content = split_summary[1]
@@ -200,7 +201,7 @@ class TopicModel():
             
             post_url = prompt_dalle(post_prompt)
             post = {
-                'content' : post_content,
+                'content': post_content,
                 'image_url': post_url
             }
             posts[post_theme] = post
@@ -227,7 +228,7 @@ class TopicModel():
         df_posts = []
         for topic, post in posts.items():
             current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-            post_content = f"{post['content'].split(':')[-1]} \n Image: {post['image_url']}"
+            post_content = f"{post['content'].split(':')[-1]}"
             post = {
                 "id": str(uuid.uuid4()),
                 "created_at": current_timestamp,
@@ -237,7 +238,7 @@ class TopicModel():
                 "type": "Story",
                 "author_id": "clwaic21v000btf01eydoklol",
                 "status": "ai_generated_unreviewed",
-                "image_id": '' # TODO : Upload to s3
+                "image_id": upload_to_minio(image_url=post['image_url']) 
             }
             df_posts.append(post)
         df = pd.DataFrame(df_posts)

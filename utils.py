@@ -1,4 +1,22 @@
 
+from minio import Minio
+from minio.error import S3Error
+import requests 
+import uuid
+import os 
+
+S3_URL = os.getenv("S3_URL")
+S3_USERNAME = os.getenv("S3_USERNAME")
+S3_PASSWORD = os.getenv("S3_PASSWORD")
+S3_BUCKET = os.getenv("S3_BUCKET")
+
+minio_client = Minio(
+            S3_URL,
+            access_key=S3_USERNAME,
+            secret_key=S3_PASSWORD,
+            secure=True
+        )
+
 def generate_html(posts):
     # Only for testing : Generates HTML page with the currently generated posts and stores them as 'index.html' file
     html_content = """
@@ -64,3 +82,56 @@ def generate_html(posts):
     with open('index.html', 'w', encoding='utf-8') as file:
         file.write(html_content)
  
+
+def upload_to_minio(image_url,
+                    bucket=S3_BUCKET,
+                    object_name=str(uuid.uuid4())
+                    ):
+    try:
+        # Get image from Dalle generated URL
+        response = requests.get(image_url, stream=True)
+        response.raise_for_status()
+
+        if not minio_client.bucket_exists(bucket):
+            minio_client.make_bucket(bucket)
+
+        # Upload the file 
+        minio_client.put_object(
+            bucket,
+            object_name,
+            data=response.raw,
+            length=int(response.headers.get('content-length')),
+            content_type=response.headers.get('content-type')
+        )
+        print(f"Image is successfully uploaded with id='{object_name}' to bucket '{bucket}'.")
+        return object_name
+    except S3Error as e:
+        print(f"File upload failed: {e}")
+        return '' # Returns an empty string in case the upload was unsuccessful
+
+
+def download_image_from_url(url):
+    try:
+        # Download the image from url
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
+        return response.raw
+    except requests.RequestException as e:
+        print(f"Error downloading the image: {e}")
+    except Exception as e:
+        print(e)
+
+
+def list_objects_in_bucket(bucket_name=S3_BUCKET):
+    """
+    List all objects in a MinIO bucket
+
+    :param bucket_name: Name of the bucket to list objects from
+    """
+    try:
+        # List objects in the bucket
+        objects = minio_client.list_objects(bucket_name, recursive=True)
+        for obj in objects:
+            print(f"Object: {obj.object_name} - Size: {obj.size} bytes")
+    except S3Error as e:
+        print(f"Error occurred: {e}")

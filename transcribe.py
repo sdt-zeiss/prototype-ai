@@ -54,7 +54,6 @@ def upload_audio(file_path, audio_extension, api_key=GLADIA_API_KEY):
         'audio': ('test_audio', open(file_path, 'rb'), f'audio/{audio_extension}')
     } 
 
-    print(files)
     url = 'https://api.gladia.io/v2/upload'
 
     try:
