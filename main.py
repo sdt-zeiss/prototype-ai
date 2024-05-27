@@ -2,11 +2,14 @@ from flask import Flask, request, jsonify
 from transcribe import transcribe, upload_audio
 from topic_model import TopicModel
 import pandas as pd
-from utils import generate_html
 from waitress import serve
+from rag import answer_query
+from flask_cors import CORS
+from indexer import preprocess_comments
+import os
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -58,6 +61,28 @@ def transcribe_url():
     else:
         return jsonify({"error": "Invalid file"}), 400
 
+
+@app.route('/ask', methods=['POST'])
+def ask():
+    data = request.json
+    question = data.get('question', '')
+    if not question:
+        return jsonify({"error": "Question is required"}), 400
+
+    # Run the RAG pipeline
+    result = answer_query(question)
+
+    return jsonify({"answer": result})
+
+
+@app.route('/preprocess-comments', methods=['POST'])
+def prepare_vectors():
+    try:
+        connection_string = "postgresql+psycopg://webapp:KdcCAQydYH4yMYnYqAA58GOhxSYFefMZZssLpQHsv1cV@postgres-16.sliplane.app:5432/prototype" # Hardcoding for now
+        preprocess_comments(connection_string)
+        return jsonify({"status": "success", "message": "Comments added to the vectorstore successfully."}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     # Production server

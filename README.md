@@ -31,6 +31,12 @@ S3_URL = ""
 S3_USERNAME = ""
 S3_PASSWORD = ""
 S3_BUCKET = ""
+
+LANGCHAIN_API_KEY = ""
+LANGCHAIN_TRACING_V2 = ""
+LANGCHAIN_PROJECT = ""
+
+PGVECTOR_COLLECTION = ""
 ```
 
 # Start the flask server

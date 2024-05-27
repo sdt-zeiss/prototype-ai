@@ -161,5 +161,9 @@ cython_debug/
 
 # Util user defined scripts for linux
 export.sh
-.csv
-.wav
+*.csv
+*.wav
+*.html
+prompts.md
+
+.idea/
