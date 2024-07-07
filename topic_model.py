@@ -176,7 +176,7 @@ class TopicModel():
 
             num_posts = 2
 
-            post_conversion_prompt = f"""I have the following summary of a document after analyzing and performing topic modeling into it. The modeling was done on a podcast transcript and the theme of the conversation is represented in the following - {new_topic}. Generate {num_posts} distinct social media posts for this given topic. This post should consist of a thought provoking scenario, demanding user's engagement and contribution towards the theme. Make sure the topic represents an open ended question and allows the users to answer at a meta level. Use a small title of at most 5 words that perfectly describes the theme of the post. Consider [SEP] to be a special separation character, [EOP] represents End of post character, and make sure it is in the following format:
+            post_conversion_prompt = f"""I have the following summary of a document after analyzing and performing topic modeling into it. The modeling was done on a podcast transcript and the theme of the conversation is represented in the following - {new_topic}. Generate {num_posts} distinct social media posts for this given topic. This post should consist of a thought provoking scenario, demanding user's engagement and contribution towards the theme. Make sure the topic represents the topic and the context appropriately and does not drift away from it. Use a small title of at most 5 words that perfectly describes the theme of the post. Consider [SEP] to be a special separation character, [EOP] represents End of post character, and make sure it is in the following format:
             Title:<post_title> [SEP] Post:<post_caption>
             [EOP]
             """
@@ -203,7 +203,8 @@ class TopicModel():
             split_summary = summary.split('[SEP]')
             post_theme = split_summary[0]
             post_content = split_summary[1]
-            post_prompt = f"You are a content creator of a social media forum. You lead a community of people who are interested in the topic: \"{post_theme}\". As your next post, I have the following post content: \"{post_content}\". To make this post capable of inducing a thought provoking scenario, that demands user\'s engagement and contribution towards the theme, you need to create an appropriate image artwork which captures the essence of the post. Make sure the artwork represents an abstract artifact and supports the users to think at a meta level."
+            post_prompt = f"You are a content creator of a social media forum. You lead a community of people who are interested in the topic: \"{post_theme}\". As your next post, I have the following post content: \"{post_content}\". To make this post capable of inducing a thought provoking scenario, that demands user\'s engagement and contribution towards the theme, you need to create an appropriate image artwork which captures the essence of the post. "
+            # Make sure the artwork represents an abstract artifact and supports the users to think at a meta level."
             
             post_url = prompt_dalle(post_prompt)
             post = {
